@@ -11,7 +11,7 @@ interface EventCardProps {
 export function EventCard({ event }: EventCardProps) {
   const { day, month } = formatShortDate(event.event_date)
   const fullDateShort = formatEventDateShort(event.event_date)
-  const past = event.is_past ?? isEventPast(event.event_date)
+  const past = isEventPast(event.event_date)
 
   return (
     <div

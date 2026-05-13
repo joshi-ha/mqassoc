@@ -49,7 +49,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   if (!event) notFound()
 
-  const past = event.is_past ?? isEventPast(event.event_date)
+  const past = isEventPast(event.event_date)
   const relatedEvents = moreEvents.filter((e) => e.slug !== slug).slice(0, 3)
 
   const googleMapsUrl = event.address
