@@ -1,26 +1,93 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #913f4a;
+  --color-primary-light: #a85661;
+  --color-primary-dark: #7c3340;
+  --color-cream: #fff9f3;
+  --color-cream-dark: #f5ede4;
+  --color-text: #241f1f;
+  --color-muted: #6b6b6b;
+  --color-border: #eadfd3;
+
+  --font-display: var(--font-dm-serif-display), Georgia, serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #fff9f3;
+  --foreground: #241f1f;
+  --card: #ffffff;
+  --radius: 0.5rem;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #fff9f3;
+}
+::-webkit-scrollbar-thumb {
+  background: #913f4a;
+  border-radius: 3px;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.admin-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid #eadfd3;
+  background: white;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
+  color: #241f1f;
+  outline: none;
+  transition: border-color 150ms, box-shadow 150ms;
+}
+
+.admin-input:focus {
+  border-color: color-mix(in srgb, #913f4a 50%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, #913f4a 12%, transparent);
+}
+
+.admin-input::placeholder {
+  color: color-mix(in srgb, #6b6b6b 50%, transparent);
+}
+
+.admin-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b6b6b;
+  transition: all 150ms ease;
+  text-decoration: none;
+}
+
+.admin-sidebar-item:hover,
+.admin-sidebar-item.active {
+  background: color-mix(in srgb, #913f4a 10%, transparent);
+  color: #913f4a;
 }
