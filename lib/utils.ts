@@ -38,3 +38,51 @@ export function difficultyLabel(
   const map = { easy: "1st Year", medium: "2nd–3rd Year", hard: "Advanced" };
   return difficulty ? map[difficulty] : "All Levels";
 }
+
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim();
+}
+
+export function formatEventDate(dateStr: string, includeTime = true): string {
+  const date = new Date(dateStr);
+  const datePart = date.toLocaleDateString("en-AU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  if (!includeTime) return datePart;
+  const timePart = date.toLocaleTimeString("en-AU", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+  return `${datePart}, ${timePart}`;
+}
+
+export function formatEventDateShort(dateStr: string): string {
+  const date = new Date(dateStr);
+  return date.toLocaleDateString("en-AU", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+  });
+}
+
+export function isEventPast(dateStr: string): boolean {
+  return new Date(dateStr) < new Date();
+}
+
+export function parseTags(tagsStr: string): string[] {
+  if (!tagsStr.trim()) return [];
+  const separator = tagsStr.includes("|") ? "|" : ",";
+  return tagsStr
+    .split(separator)
+    .map((t) => t.trim())
+    .filter(Boolean);
+}
