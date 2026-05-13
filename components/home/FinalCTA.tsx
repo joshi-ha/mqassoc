@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 
 export function FinalCTA() {
   return (
-    <section className="bg-[var(--color-primary)] py-24">
+    <section className="bg-primary py-24">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -24,8 +24,7 @@ export function FinalCTA() {
           </h2>
           <p className="text-white/70 text-lg max-w-xl mx-auto leading-relaxed mb-10">
             Join hundreds of students already benefiting from ASSOC&apos;s
-            events, resources, and community. Your actuarial career starts
-            here.
+            events, resources, and community. Your actuarial career starts here.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

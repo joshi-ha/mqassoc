@@ -21,7 +21,13 @@ export const metadata: Metadata = {
   },
   description:
     "The Macquarie University Actuarial Students' Society (ASSOC) is a student-led community focused on supporting students through their actuarial journey — from first-year fundamentals to graduate careers.",
-  keywords: ["actuarial", "Macquarie University", "students society", "ASSOC", "actuarial science"],
+  keywords: [
+    "actuarial",
+    "Macquarie University",
+    "students society",
+    "ASSOC",
+    "actuarial science",
+  ],
   openGraph: {
     title: "ASSOC — Macquarie University Actuarial Students' Society",
     description: "Building Tomorrow's Actuaries Today",
@@ -35,11 +41,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${dmSerifDisplay.variable} ${dmSans.variable}`}
-    >
-      <body className="min-h-screen bg-[var(--color-cream)] text-[var(--color-text)] antialiased">
+    <html lang="en" className={`${dmSerifDisplay.variable} ${dmSans.variable}`}>
+      <body className="min-h-screen bg-cream text-text antialiased">
         {children}
       </body>
     </html>

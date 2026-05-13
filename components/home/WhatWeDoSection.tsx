@@ -34,7 +34,7 @@ const cards = [
 
 export function WhatWeDoSection() {
   return (
-    <section className="py-24 bg-[var(--color-cream-dark)]">
+    <section className="py-24 bg-cream-dark">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Our Purpose"
@@ -51,26 +51,28 @@ export function WhatWeDoSection() {
               viewport={{ once: true, margin: "-40px" }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
               whileHover={{ y: -4 }}
-              className="group bg-white rounded-2xl p-8 shadow-sm border border-[var(--color-border)] hover:border-[var(--color-primary)]/40 hover:shadow-lg transition-all duration-300"
+              className="group bg-white rounded-2xl p-8 shadow-sm border border-border hover:border-primary/40 hover:shadow-lg transition-all duration-300"
             >
-              <div className="w-12 h-12 rounded-xl bg-[var(--color-cream-dark)] border border-[var(--color-border)] flex items-center justify-center mb-6 group-hover:bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] group-hover:border-[var(--color-primary)]/30 transition-all">
+              <div className="w-12 h-12 rounded-xl bg-cream-dark border border-border flex items-center justify-center mb-6 group-hover:bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] group-hover:border-primary/30 transition-all">
                 <card.icon
                   size={22}
-                  className="text-[var(--color-muted)] group-hover:text-[var(--color-primary)] transition-colors"
+                  className="text-muted group-hover:text-primary transition-colors"
                 />
               </div>
-              <h3 className="font-display text-xl text-[var(--color-text)] mb-3">
+              <h3 className="font-display text-xl text-text mb-3">
                 {card.title}
               </h3>
-              <p className="text-sm text-[var(--color-muted)] leading-relaxed mb-6">
+              <p className="text-sm text-muted leading-relaxed mb-6">
                 {card.description}
               </p>
               <Link
                 href={card.href}
-                className="inline-flex items-center text-sm font-medium text-[var(--color-primary)] hover:gap-2 gap-1 transition-all"
+                className="inline-flex items-center text-sm font-medium text-primary hover:gap-2 gap-1 transition-all"
               >
                 {card.cta}
-                <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                <span className="transition-transform group-hover:translate-x-0.5">
+                  →
+                </span>
               </Link>
             </motion.div>
           ))}

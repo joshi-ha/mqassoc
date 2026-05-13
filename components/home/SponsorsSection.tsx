@@ -5,7 +5,13 @@ import { Button } from "@/components/ui/Button";
 import type { Sponsor } from "@/types";
 
 const PLACEHOLDER_SPONSORS: Sponsor[] = [
-  { id: "1", name: "Deloitte", tier: "platinum", display_order: 0, active: true },
+  {
+    id: "1",
+    name: "Deloitte",
+    tier: "platinum",
+    display_order: 0,
+    active: true,
+  },
   { id: "2", name: "PwC", tier: "gold", display_order: 0, active: true },
   { id: "3", name: "Finity", tier: "silver", display_order: 1, active: true },
 ];
@@ -29,9 +35,17 @@ async function getSponsors(): Promise<Sponsor[]> {
 }
 
 const tierConfig = {
-  platinum: { label: "Platinum Partner", size: "text-xl font-semibold", px: "px-10 py-6" },
+  platinum: {
+    label: "Platinum Partner",
+    size: "text-xl font-semibold",
+    px: "px-10 py-6",
+  },
   gold: { label: "Gold Partner", size: "text-lg font-medium", px: "px-8 py-5" },
-  silver: { label: "Silver Partner", size: "text-base font-medium", px: "px-7 py-4" },
+  silver: {
+    label: "Silver Partner",
+    size: "text-base font-medium",
+    px: "px-7 py-4",
+  },
   bronze: { label: "Bronze Partner", size: "text-sm", px: "px-6 py-4" },
 };
 
@@ -54,12 +68,8 @@ export async function SponsorsSection() {
           {platinum.length > 0 && (
             <SponsorRow sponsors={platinum} tier="platinum" />
           )}
-          {gold.length > 0 && (
-            <SponsorRow sponsors={gold} tier="gold" />
-          )}
-          {silver.length > 0 && (
-            <SponsorRow sponsors={silver} tier="silver" />
-          )}
+          {gold.length > 0 && <SponsorRow sponsors={gold} tier="gold" />}
+          {silver.length > 0 && <SponsorRow sponsors={silver} tier="silver" />}
         </div>
 
         <div className="mt-14 text-center">
@@ -72,11 +82,17 @@ export async function SponsorsSection() {
   );
 }
 
-function SponsorRow({ sponsors, tier }: { sponsors: Sponsor[]; tier: keyof typeof tierConfig }) {
+function SponsorRow({
+  sponsors,
+  tier,
+}: {
+  sponsors: Sponsor[];
+  tier: keyof typeof tierConfig;
+}) {
   const config = tierConfig[tier];
   return (
     <div>
-      <p className="text-center text-xs font-semibold uppercase tracking-widest text-[var(--color-muted)] mb-5">
+      <p className="text-center text-xs font-semibold uppercase tracking-widest text-muted mb-5">
         {config.label}
       </p>
       <div className="flex flex-wrap items-center justify-center gap-4">
@@ -86,7 +102,7 @@ function SponsorRow({ sponsors, tier }: { sponsors: Sponsor[]; tier: keyof typeo
             href={sponsor.website_url ?? "#"}
             target="_blank"
             rel="noopener noreferrer"
-            className={`group ${config.px} bg-[var(--color-cream)] rounded-xl border border-[var(--color-border)] hover:border-[var(--color-primary)]/40 hover:shadow-md transition-all duration-200 flex items-center justify-center`}
+            className={`group ${config.px} bg-cream rounded-xl border border-border hover:border-primary/40 hover:shadow-md transition-all duration-200 flex items-center justify-center`}
           >
             {sponsor.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -97,7 +113,7 @@ function SponsorRow({ sponsors, tier }: { sponsors: Sponsor[]; tier: keyof typeo
               />
             ) : (
               <span
-                className={`font-display text-[var(--color-text)] group-hover:text-[var(--color-primary)] transition-colors ${config.size}`}
+                className={`font-display text-text group-hover:text-primary transition-colors ${config.size}`}
               >
                 {sponsor.name}
               </span>

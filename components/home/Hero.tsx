@@ -28,7 +28,7 @@ const itemVariants: Variants = {
 
 export function Hero() {
   return (
-    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-[var(--color-cream)]">
+    <section className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-cream">
       {/* Subtle radial gradient */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -44,8 +44,13 @@ export function Hero() {
           key={i}
           initial={{ opacity: 0 }}
           animate={{ opacity: [0, 0.08, 0.05] }}
-          transition={{ duration: 3, delay: s.delay, repeat: Infinity, repeatType: "reverse" }}
-          className={`absolute font-display text-[var(--color-primary)] select-none pointer-events-none ${s.size}`}
+          transition={{
+            duration: 3,
+            delay: s.delay,
+            repeat: Infinity,
+            repeatType: "reverse",
+          }}
+          className={`absolute font-display text-primary select-none pointer-events-none ${s.size}`}
           style={{
             top: s.top,
             bottom: (s as { bottom?: string }).bottom,
@@ -65,24 +70,23 @@ export function Hero() {
         className="relative z-10 max-w-4xl mx-auto px-6 text-center"
       >
         <motion.div variants={itemVariants}>
-          <span className="inline-block font-sans text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-6 px-4 py-1.5 rounded-full border border-[var(--color-primary)]/25 bg-[var(--color-primary)]/5">
+          <span className="inline-block font-sans text-sm font-semibold uppercase tracking-widest text-primary mb-6 px-4 py-1.5 rounded-full border border-primary/25 bg-primary/5">
             Macquarie University
           </span>
         </motion.div>
 
         <motion.h1
           variants={itemVariants}
-          className="font-display text-5xl sm:text-6xl lg:text-7xl text-[var(--color-text)] leading-[1.1] mb-6"
+          className="font-display text-5xl sm:text-6xl lg:text-7xl text-text leading-[1.1] mb-6"
         >
           Start Your Actuarial
           <br />
-          <span className="text-[var(--color-primary)]">Journey</span> With
-          Confidence
+          <span className="text-primary">Journey</span> With Confidence
         </motion.h1>
 
         <motion.p
           variants={itemVariants}
-          className="font-sans text-lg sm:text-xl text-[var(--color-muted)] max-w-2xl mx-auto leading-relaxed mb-10"
+          className="font-sans text-lg sm:text-xl text-muted max-w-2xl mx-auto leading-relaxed mb-10"
         >
           The Macquarie University Actuarial Students&apos; Society (ASSOC)
           supports students through their actuarial journey — from first-year
@@ -101,11 +105,14 @@ export function Hero() {
           </Button>
         </motion.div>
 
-        <motion.div variants={itemVariants} className="mt-8 flex items-center justify-center gap-6 text-sm text-[var(--color-muted)]">
+        <motion.div
+          variants={itemVariants}
+          className="mt-8 flex items-center justify-center gap-6 text-sm text-muted"
+        >
           <Stat value="500+" label="Members" />
-          <div className="w-px h-6 bg-[var(--color-border)]" />
+          <div className="w-px h-6 bg-border" />
           <Stat value="4+" label="Years" />
-          <div className="w-px h-6 bg-[var(--color-border)]" />
+          <div className="w-px h-6 bg-border" />
           <Stat value="20+" label="Events/year" />
         </motion.div>
       </motion.div>
@@ -115,9 +122,11 @@ export function Hero() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-[var(--color-muted)]"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted"
       >
-        <span className="text-xs font-sans uppercase tracking-widest">Scroll</span>
+        <span className="text-xs font-sans uppercase tracking-widest">
+          Scroll
+        </span>
         <motion.div
           animate={{ y: [0, 5, 0] }}
           transition={{ duration: 1.5, repeat: Infinity }}
@@ -132,7 +141,7 @@ export function Hero() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="text-center">
-      <p className="font-display text-2xl text-[var(--color-text)]">{value}</p>
+      <p className="font-display text-2xl text-text">{value}</p>
       <p className="text-xs">{label}</p>
     </div>
   );
