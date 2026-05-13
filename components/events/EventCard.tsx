@@ -14,7 +14,8 @@ export function EventCard({ event }: EventCardProps) {
   const past = isEventPast(event.event_date)
 
   return (
-    <div
+    <Link
+      href={`/events/${event.slug}`}
       className={cn(
         "group flex flex-col bg-white rounded-xl border overflow-hidden transition-all duration-300",
         "hover:shadow-lg hover:-translate-y-0.5",
@@ -97,19 +98,18 @@ export function EventCard({ event }: EventCardProps) {
             {event.price ?? "Free"}
           </span>
 
-          <Link
-            href={`/events/${event.slug}`}
+          <span
             className={cn(
               "text-xs font-semibold border rounded-full px-3 py-1.5 transition-all",
               past
-                ? "border-border text-muted hover:border-muted hover:text-text"
-                : "border-primary text-primary hover:bg-primary hover:text-white"
+                ? "border-border text-muted group-hover:border-muted group-hover:text-text"
+                : "border-primary text-primary group-hover:bg-primary group-hover:text-white"
             )}
           >
             View Details
-          </Link>
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   )
 }
