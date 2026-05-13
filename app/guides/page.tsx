@@ -1,91 +1,33 @@
-import type { Metadata } from "next";
-import { Navbar } from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
-import { GuidesGrid } from "@/components/guides/GuidesGrid";
-import { SectionHeading } from "@/components/ui/SectionHeading";
-import { createClient } from "@/lib/supabase/server";
-import type { Guide } from "@/types";
+import type { Metadata } from "next"
+import Link from "next/link"
+import { Navbar } from "@/components/layout/Navbar"
+import { Footer } from "@/components/layout/Footer"
+import { GuideCard } from "@/components/guides/GuideCard"
+import { getPublishedGuides, getGuidesByYear } from "@/lib/guides"
+import { BookOpen } from "lucide-react"
 
 export const metadata: Metadata = {
-  title: "Unit Survival Guides",
-  description: "Student-written survival guides for every actuarial unit at Macquarie University.",
-};
-
-const PLACEHOLDER_GUIDES: Guide[] = [
-  {
-    id: "1",
-    title: "Introduction to Actuarial Studies",
-    unit_code: "ACST101",
-    unit_name: "Probability and Statistics",
-    author: "Sarah Chen",
-    difficulty: "easy",
-    year_level: 1,
-    tags: ["probability", "statistics", "foundations"],
-    published: true,
-    created_at: new Date().toISOString(),
-    content: "A comprehensive guide to ACST101...",
-  },
-  {
-    id: "2",
-    title: "Survival Guide to Financial Mathematics",
-    unit_code: "ACST201",
-    unit_name: "Financial Mathematics",
-    author: "James Park",
-    difficulty: "medium",
-    year_level: 2,
-    tags: ["finance", "interest theory", "annuities"],
-    published: true,
-    created_at: new Date().toISOString(),
-    content: "Everything you need to know about ACST201...",
-  },
-  {
-    id: "3",
-    title: "Mastering Life Contingencies",
-    unit_code: "ACST305",
-    unit_name: "Life Contingencies",
-    author: "Emily Wang",
-    difficulty: "hard",
-    year_level: 3,
-    tags: ["life insurance", "mortality", "actuarial tables"],
-    published: true,
-    created_at: new Date().toISOString(),
-    content: "A deep dive into ACST305...",
-  },
-  {
-    id: "4",
-    title: "General Insurance Pricing",
-    unit_code: "ACST356",
-    unit_name: "General Insurance",
-    author: "Michael Torres",
-    difficulty: "hard",
-    year_level: 3,
-    tags: ["general insurance", "pricing", "reserving"],
-    published: true,
-    created_at: new Date().toISOString(),
-    content: "Tackling ACST356...",
-  },
-];
-
-async function getGuides(): Promise<Guide[]> {
-  try {
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("guides")
-      .select("*")
-      .eq("published", true)
-      .order("unit_code");
-    if (error) {
-      console.error("Supabase guides error:", error);
-      return PLACEHOLDER_GUIDES;
-    }
-    return data?.length ? data : PLACEHOLDER_GUIDES;
-  } catch {
-    return PLACEHOLDER_GUIDES;
-  }
+  title: "Unit Survival Guides | ASSOC",
+  description: "Student-written survival guides for every actuarial unit at Macquarie University. Real advice from students who've been there.",
 }
 
-export default async function GuidesPage() {
-  const guides = await getGuides();
+const YEAR_FILTERS = [
+  { label: "All",    value: null },
+  { label: "Year 1", value: 1 },
+  { label: "Year 2", value: 2 },
+  { label: "Year 3", value: 3 },
+  { label: "Year 4", value: 4 },
+]
+
+type Props = { searchParams: Promise<{ year?: string }> }
+
+export default async function GuidesPage({ searchParams }: Props) {
+  const { year: yearParam } = await searchParams
+  const yearLevel = yearParam ? parseInt(yearParam) : null
+
+  const guides = yearLevel
+    ? await getGuidesByYear(yearLevel)
+    : await getPublishedGuides()
 
   return (
     <>
@@ -93,24 +35,74 @@ export default async function GuidesPage() {
       <main>
         {/* Hero */}
         <section className="bg-[var(--color-primary)] py-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <SectionHeading
-              eyebrow="Student Resources"
-              title="Unit Survival Guides"
-              subtitle="Written by students, for students. Everything you need to navigate your actuarial units at Macquarie."
-              light
-            />
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 mb-4">
+              Student Resources
+            </p>
+            <h1 className="font-display text-4xl sm:text-5xl text-white mb-4">
+              Unit Survival Guides
+            </h1>
+            <p className="text-white/70 text-lg max-w-2xl mx-auto">
+              Real advice from students who&apos;ve been there.
+            </p>
           </div>
         </section>
 
-        {/* Guides */}
-        <section className="py-16 bg-[var(--color-cream)]">
+        {/* Filter bar */}
+        <div className="bg-white border-b border-[var(--color-border)] sticky top-16 z-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <GuidesGrid guides={guides} />
+            <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-none">
+              {YEAR_FILTERS.map(({ label, value }) => {
+                const active = yearLevel === value
+                const href = value ? `/guides?year=${value}` : "/guides"
+                return (
+                  <Link
+                    key={label}
+                    href={href}
+                    className={
+                      active
+                        ? "shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold bg-[var(--color-primary)] text-white"
+                        : "shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-cream-dark)] transition-colors"
+                    }
+                  >
+                    {label}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Guides grid */}
+        <section className="py-14 bg-[var(--color-cream)]">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {guides.length === 0 ? (
+              <div className="text-center py-20">
+                <BookOpen size={40} className="text-[var(--color-muted)] mx-auto mb-4" />
+                <p className="font-display text-2xl text-[var(--color-text)] mb-2">
+                  No guides published yet{yearLevel ? ` for Year ${yearLevel}` : ""}
+                </p>
+                <p className="text-[var(--color-muted)]">Check back soon!</p>
+                {yearLevel && (
+                  <Link
+                    href="/guides"
+                    className="inline-block mt-6 text-sm font-semibold text-[var(--color-primary)] hover:underline"
+                  >
+                    View all guides →
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {guides.map((guide) => (
+                  <GuideCard key={guide.id} guide={guide} />
+                ))}
+              </div>
+            )}
           </div>
         </section>
       </main>
       <Footer />
     </>
-  );
+  )
 }

@@ -1,69 +1,88 @@
 import Link from "next/link";
-import { BookOpen, User, Tag } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
+import { Clock, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Guide } from "@/types";
 
-interface GuideCardProps {
-  guide: Guide;
-}
+const DIFFICULTY_STYLES = {
+  easy: { badge: "bg-emerald-100 text-emerald-700", label: "Easy" },
+  medium: { badge: "bg-amber-100   text-amber-700", label: "Medium" },
+  hard: { badge: "bg-rose-100    text-rose-700", label: "Hard" },
+};
 
-export function GuideCard({ guide }: GuideCardProps) {
-  const difficultyVariant =
-    guide.difficulty === "easy"
-      ? "easy"
-      : guide.difficulty === "medium"
-      ? "medium"
-      : guide.difficulty === "hard"
-      ? "hard"
-      : "cream";
+export function GuideCard({ guide }: { guide: Guide }) {
+  const diff = guide.difficulty ? DIFFICULTY_STYLES[guide.difficulty] : null;
+  const preview = guide.intro
+    ? guide.intro.length > 120
+      ? guide.intro.slice(0, 120).trimEnd() + "…"
+      : guide.intro
+    : null;
+
+  const href = guide.slug ? `/guides/${guide.slug}` : `/guides/${guide.id}`;
 
   return (
     <Link
-      href={`/guides/${guide.id}`}
-      className="group block bg-white rounded-2xl border border-[var(--color-border)] p-6 hover:shadow-lg hover:border-[var(--color-primary)]/30 transition-all duration-300"
+      href={href}
+      className="group flex flex-col bg-white rounded-2xl border border-border p-6 hover:shadow-lg hover:border-[var(--color-primary)]/40 transition-all duration-300"
     >
-      <div className="flex items-start justify-between gap-4 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-[color-mix(in_srgb,var(--color-primary)_8%,transparent)] flex items-center justify-center shrink-0">
-          <BookOpen size={18} className="text-[var(--color-primary)]" />
-        </div>
-        {guide.difficulty && (
-          <Badge variant={difficultyVariant as "easy" | "medium" | "hard"}>
-            {guide.difficulty === "easy"
-              ? "1st Year"
-              : guide.difficulty === "medium"
-              ? "2nd–3rd Year"
-              : "Advanced"}
-          </Badge>
+      {/* Top row: unit code pill + difficulty badge */}
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <span className="inline-block text-xs font-bold font-mono tracking-wider px-2.5 py-1 rounded-full bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-[var(--color-primary)]">
+          {guide.unit_code}
+        </span>
+        {diff && (
+          <span
+            className={cn(
+              "text-[11px] font-semibold px-2.5 py-0.5 rounded-full shrink-0",
+              diff.badge,
+            )}
+          >
+            {diff.label}
+          </span>
         )}
       </div>
 
-      <p className="font-sans text-xs font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-1">
-        {guide.unit_code}
+      {/* Unit name */}
+      <p className="text-xs text-[var(--color-muted)] mb-1">
+        {guide.unit_name}
       </p>
-      <h3 className="font-display text-lg text-[var(--color-text)] mb-1 group-hover:text-[var(--color-primary)] transition-colors leading-snug">
+
+      {/* Title */}
+      <h3 className="font-display text-lg text-[var(--color-text)] leading-snug mb-2 group-hover:text-[var(--color-primary)] transition-colors">
         {guide.title}
       </h3>
-      <p className="text-sm text-[var(--color-muted)] mb-4">{guide.unit_name}</p>
 
+      {/* Author */}
       {guide.author && (
-        <div className="flex items-center gap-1.5 text-xs text-[var(--color-muted)] mb-3">
-          <User size={12} />
-          {guide.author}
-        </div>
+        <p className="text-xs italic text-[var(--color-muted)] mb-3">
+          By {guide.author}
+        </p>
       )}
 
-      {guide.tags && guide.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
-          {guide.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              className="inline-flex items-center gap-1 text-xs text-[var(--color-muted)] bg-[var(--color-cream-dark)] rounded-full px-2.5 py-0.5"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
+      {/* Intro preview */}
+      {preview && (
+        <p className="text-sm text-[var(--color-muted)] leading-relaxed mb-4 flex-1">
+          {preview}
+        </p>
       )}
+
+      {/* Bottom row */}
+      <div className="flex items-center justify-between gap-2 mt-auto pt-3 border-t border-[var(--color-border)]">
+        <div className="flex items-center gap-3">
+          {guide.year_level && (
+            <span className="text-xs font-medium text-[var(--color-muted)] bg-[var(--color-cream-dark)] px-2 py-0.5 rounded-full">
+              Year {guide.year_level}
+            </span>
+          )}
+          {guide.read_time_minutes && (
+            <span className="flex items-center gap-1 text-xs text-[var(--color-muted)]">
+              <Clock size={11} />~{guide.read_time_minutes} min
+            </span>
+          )}
+        </div>
+        <span className="flex items-center gap-1 text-xs font-semibold text-[var(--color-primary)] group-hover:gap-2 transition-all">
+          Read Guide <ArrowRight size={12} />
+        </span>
+      </div>
     </Link>
   );
 }

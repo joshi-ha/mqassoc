@@ -19,18 +19,33 @@ export interface Event {
   updated_at: string
 }
 
+export interface GuideSection {
+  id: string
+  guide_id: string
+  question: string
+  answer: string
+  display_order: number
+}
+
 export interface Guide {
   id: string
   title: string
+  slug: string
   unit_code: string
   unit_name: string
+  intro?: string
   content?: string
+  final_notes?: string
   author?: string
+  cover_image_url?: string
   difficulty?: "easy" | "medium" | "hard"
   year_level?: number
   tags?: string[]
   published: boolean
+  read_time_minutes?: number
   created_at: string
+  updated_at: string
+  sections?: GuideSection[]
 }
 
 export interface CabinetMember {

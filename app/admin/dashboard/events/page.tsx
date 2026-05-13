@@ -10,10 +10,13 @@ import { Button } from "@/components/ui/Button"
 import { cn } from "@/lib/utils"
 import { slugify, parseTags } from "@/lib/utils"
 import { useToast, ToastContainer } from "@/components/ui/Toast"
-import { parseCSV, generateCSVTemplate, downloadCSV, CSV_TEMPLATE_HEADERS } from "@/lib/csv"
+import { parseCSV, generateCSVTemplate, downloadCSV } from "@/lib/csv"
+import {
+  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter, SheetClose,
+} from "@/components/ui/sheet"
 import type { Event } from "@/types"
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 type FormData = Omit<Event, "id" | "created_at" | "updated_at" | "is_past"> & {
   tagsInput: string
@@ -44,7 +47,7 @@ export default function AdminEventsPage() {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [showModal, setShowModal] = useState(false)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [showCSVModal, setShowCSVModal] = useState(false)
   const [editing, setEditing] = useState<Event | null>(null)
@@ -69,23 +72,21 @@ export default function AdminEventsPage() {
 
   useEffect(() => { loadEvents() }, [loadEvents])
 
-  // Stats
   const now = new Date().toISOString()
   const upcoming = events.filter((e) => e.event_date >= now).length
   const past = events.filter((e) => e.event_date < now).length
 
-  // Filtered by search
   const filtered = events.filter((e) =>
     e.title.toLowerCase().includes(search.toLowerCase())
   )
 
-  // ── Form helpers ────────────────────────────────────────────────────────────
+  // ── Form helpers ─────────────────────────────────────────────────────────────
 
   function openCreate() {
     setEditing(null)
     setForm(EMPTY_FORM)
     setSlugManuallyEdited(false)
-    setShowModal(true)
+    setSheetOpen(true)
   }
 
   function openEdit(event: Event) {
@@ -109,7 +110,7 @@ export default function AdminEventsPage() {
       price: event.price ?? "Free",
     })
     setSlugManuallyEdited(true)
-    setShowModal(true)
+    setSheetOpen(true)
   }
 
   function openDuplicate(event: Event) {
@@ -133,7 +134,7 @@ export default function AdminEventsPage() {
       price: event.price ?? "Free",
     })
     setSlugManuallyEdited(true)
-    setShowModal(true)
+    setSheetOpen(true)
   }
 
   function updateTitle(value: string) {
@@ -201,7 +202,7 @@ export default function AdminEventsPage() {
     }
 
     setSaving(false)
-    setShowModal(false)
+    setSheetOpen(false)
     loadEvents()
   }
 
@@ -228,7 +229,6 @@ export default function AdminEventsPage() {
     loadEvents()
   }
 
-  // ── Image preview ───────────────────────────────────────────────────────────
   const imageValid =
     form.image_url?.startsWith("http") &&
     /\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(form.image_url)
@@ -394,235 +394,242 @@ export default function AdminEventsPage() {
         )}
       </div>
 
-      {/* ── Add / Edit Modal ── */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 z-40 flex items-start justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl border border-border shadow-2xl w-full max-w-2xl my-8">
-            <div className="flex items-center justify-between px-6 py-5 border-b border-border sticky top-0 bg-white rounded-t-2xl z-10">
-              <h2 className="font-display text-xl text-text">
-                {editing ? "Edit Event" : "Add Event"}
-              </h2>
-              <button
-                onClick={() => setShowModal(false)}
-                className="p-1.5 text-muted hover:text-text hover:bg-cream rounded-lg transition-colors"
-              >
+      {/* ── Add / Edit Sheet ── */}
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-2xl flex flex-col p-0"
+        >
+          <SheetHeader>
+            <SheetTitle>{editing ? "Edit Event" : "Add Event"}</SheetTitle>
+            <SheetClose asChild>
+              <button className="p-1.5 text-muted hover:text-text hover:bg-cream rounded-lg transition-colors">
                 <X size={18} />
               </button>
+            </SheetClose>
+          </SheetHeader>
+
+          <form
+            id="event-form"
+            onSubmit={handleSave}
+            className="flex-1 overflow-y-auto px-6 py-5 space-y-4"
+          >
+            {/* Title + Slug */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField label="Title" required>
+                <input
+                  type="text"
+                  required
+                  value={form.title}
+                  onChange={(e) => updateTitle(e.target.value)}
+                  className="admin-input"
+                  placeholder="Event title"
+                />
+              </FormField>
+              <FormField label="Slug" required hint="Auto-generated from title">
+                <input
+                  type="text"
+                  required
+                  value={form.slug}
+                  onChange={(e) => {
+                    setSlugManuallyEdited(true)
+                    setForm({ ...form, slug: slugify(e.target.value) })
+                  }}
+                  className="admin-input font-mono text-xs"
+                  placeholder="event-slug"
+                />
+              </FormField>
             </div>
 
-            <form onSubmit={handleSave} className="p-6 space-y-4">
-              {/* Title + Slug */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField label="Title" required>
-                  <input
-                    type="text"
-                    required
-                    value={form.title}
-                    onChange={(e) => updateTitle(e.target.value)}
-                    className="admin-input"
-                    placeholder="Event title"
-                  />
-                </FormField>
-                <FormField label="Slug" required hint="Auto-generated from title">
-                  <input
-                    type="text"
-                    required
-                    value={form.slug}
-                    onChange={(e) => {
-                      setSlugManuallyEdited(true)
-                      setForm({ ...form, slug: slugify(e.target.value) })
-                    }}
-                    className="admin-input font-mono text-xs"
-                    placeholder="event-slug"
-                  />
-                </FormField>
-              </div>
+            {/* Short description */}
+            <FormField label="Short Description" hint={`${(form.description ?? "").length}/200`}>
+              <textarea
+                rows={2}
+                maxLength={200}
+                value={form.description ?? ""}
+                onChange={(e) => setForm({ ...form, description: e.target.value })}
+                className="admin-input resize-none"
+                placeholder="Brief summary shown on cards…"
+              />
+            </FormField>
 
-              {/* Short description */}
-              <FormField label="Short Description" hint={`${(form.description ?? "").length}/200`}>
-                <textarea
-                  rows={2}
-                  maxLength={200}
-                  value={form.description ?? ""}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  className="admin-input resize-none"
-                  placeholder="Brief summary shown on cards…"
+            {/* Long description */}
+            <FormField label="Full Description" hint="Supports paragraphs (blank line = new paragraph)">
+              <textarea
+                rows={5}
+                value={form.long_description ?? ""}
+                onChange={(e) => setForm({ ...form, long_description: e.target.value })}
+                className="admin-input resize-y"
+                placeholder="Full event description…"
+              />
+            </FormField>
+
+            {/* Dates */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField label="Start Date & Time" required>
+                <input
+                  type="datetime-local"
+                  required
+                  value={form.event_date}
+                  onChange={(e) => setForm({ ...form, event_date: e.target.value })}
+                  className="admin-input"
                 />
               </FormField>
-
-              {/* Long description */}
-              <FormField label="Full Description" hint="Supports paragraphs (blank line = new paragraph)">
-                <textarea
-                  rows={5}
-                  value={form.long_description ?? ""}
-                  onChange={(e) => setForm({ ...form, long_description: e.target.value })}
-                  className="admin-input resize-y"
-                  placeholder="Full event description…"
+              <FormField label="End Date & Time" hint="Optional">
+                <input
+                  type="datetime-local"
+                  value={form.end_date ?? ""}
+                  onChange={(e) => setForm({ ...form, end_date: e.target.value })}
+                  className="admin-input"
                 />
               </FormField>
+            </div>
 
-              {/* Dates */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField label="Start Date & Time" required>
-                  <input
-                    type="datetime-local"
-                    required
-                    value={form.event_date}
-                    onChange={(e) => setForm({ ...form, event_date: e.target.value })}
-                    className="admin-input"
-                  />
-                </FormField>
-                <FormField label="End Date & Time" hint="Optional">
-                  <input
-                    type="datetime-local"
-                    value={form.end_date ?? ""}
-                    onChange={(e) => setForm({ ...form, end_date: e.target.value })}
-                    className="admin-input"
-                  />
-                </FormField>
-              </div>
+            {/* Location + Address */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField label="Venue / Location">
+                <input
+                  type="text"
+                  value={form.location ?? ""}
+                  onChange={(e) => setForm({ ...form, location: e.target.value })}
+                  className="admin-input"
+                  placeholder="e.g. Macquarie University"
+                />
+              </FormField>
+              <FormField label="Street Address">
+                <input
+                  type="text"
+                  value={form.address ?? ""}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  className="admin-input"
+                  placeholder="e.g. Balaclava Rd, Macquarie Park"
+                />
+              </FormField>
+            </div>
 
-              {/* Location + Address */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField label="Venue / Location">
-                  <input
-                    type="text"
-                    value={form.location ?? ""}
-                    onChange={(e) => setForm({ ...form, location: e.target.value })}
-                    className="admin-input"
-                    placeholder="e.g. Macquarie University"
-                  />
-                </FormField>
-                <FormField label="Street Address">
-                  <input
-                    type="text"
-                    value={form.address ?? ""}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    className="admin-input"
-                    placeholder="e.g. Balaclava Rd, Macquarie Park"
-                  />
-                </FormField>
-              </div>
+            {/* Image URL */}
+            <FormField label="Image URL" hint="Paste a direct image link">
+              <input
+                type="url"
+                value={form.image_url ?? ""}
+                onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                className="admin-input"
+                placeholder="https://…"
+              />
+              {imageValid && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={form.image_url}
+                  alt="Preview"
+                  className="mt-2 h-24 w-full object-cover rounded-lg border border-border"
+                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
+                />
+              )}
+            </FormField>
 
-              {/* Image URL */}
-              <FormField label="Image URL" hint="Paste a direct image link">
+            {/* Registration */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField label="Registration URL" hint="Humanitix / Eventbrite / TryBooking">
                 <input
                   type="url"
-                  value={form.image_url ?? ""}
-                  onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+                  value={form.registration_url ?? ""}
+                  onChange={(e) => setForm({ ...form, registration_url: e.target.value })}
                   className="admin-input"
                   placeholder="https://…"
                 />
-                {imageValid && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={form.image_url}
-                    alt="Preview"
-                    className="mt-2 h-24 w-full object-cover rounded-lg border border-border"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }}
-                  />
-                )}
               </FormField>
-
-              {/* Registration */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField label="Registration URL" hint="Humanitix / Eventbrite / TryBooking">
-                  <input
-                    type="url"
-                    value={form.registration_url ?? ""}
-                    onChange={(e) => setForm({ ...form, registration_url: e.target.value })}
-                    className="admin-input"
-                    placeholder="https://…"
-                  />
-                </FormField>
-                <FormField label="Button Label">
-                  <input
-                    type="text"
-                    value={form.registration_label ?? "Register Now"}
-                    onChange={(e) => setForm({ ...form, registration_label: e.target.value })}
-                    className="admin-input"
-                    placeholder="Register Now"
-                  />
-                </FormField>
-              </div>
-
-              {/* Price + Capacity */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField label="Price">
-                  <input
-                    type="text"
-                    value={form.price ?? "Free"}
-                    onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    className="admin-input"
-                    placeholder="Free"
-                  />
-                </FormField>
-                <FormField label="Capacity" hint="Leave blank if unlimited">
-                  <input
-                    type="number"
-                    min={1}
-                    value={form.capacity ?? ""}
-                    onChange={(e) => setForm({ ...form, capacity: e.target.value ? parseInt(e.target.value) : undefined })}
-                    className="admin-input"
-                    placeholder="e.g. 100"
-                  />
-                </FormField>
-              </div>
-
-              {/* Tags */}
-              <FormField label="Tags" hint="Comma or pipe separated">
+              <FormField label="Button Label">
                 <input
                   type="text"
-                  value={form.tagsInput}
-                  onChange={(e) => updateTagsInput(e.target.value)}
+                  value={form.registration_label ?? "Register Now"}
+                  onChange={(e) => setForm({ ...form, registration_label: e.target.value })}
                   className="admin-input"
-                  placeholder="Networking, Professional, Social"
+                  placeholder="Register Now"
                 />
-                {form.tags && form.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-2">
-                    {form.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="text-[11px] font-medium bg-primary/10 text-primary px-2.5 py-0.5 rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
               </FormField>
+            </div>
 
-              {/* Featured */}
-              <label className="flex items-center gap-3 cursor-pointer select-none">
-                <div
-                  onClick={() => setForm({ ...form, is_featured: !form.is_featured })}
-                  className={cn(
-                    "relative w-10 h-6 rounded-full transition-colors",
-                    form.is_featured ? "bg-primary" : "bg-muted/30"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform",
-                      form.is_featured ? "left-5" : "left-1"
-                    )}
-                  />
+            {/* Price + Capacity */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <FormField label="Price">
+                <input
+                  type="text"
+                  value={form.price ?? "Free"}
+                  onChange={(e) => setForm({ ...form, price: e.target.value })}
+                  className="admin-input"
+                  placeholder="Free"
+                />
+              </FormField>
+              <FormField label="Capacity" hint="Leave blank if unlimited">
+                <input
+                  type="number"
+                  min={1}
+                  value={form.capacity ?? ""}
+                  onChange={(e) => setForm({ ...form, capacity: e.target.value ? parseInt(e.target.value) : undefined })}
+                  className="admin-input"
+                  placeholder="e.g. 100"
+                />
+              </FormField>
+            </div>
+
+            {/* Tags */}
+            <FormField label="Tags" hint="Comma or pipe separated">
+              <input
+                type="text"
+                value={form.tagsInput}
+                onChange={(e) => updateTagsInput(e.target.value)}
+                className="admin-input"
+                placeholder="Networking, Professional, Social"
+              />
+              {form.tags && form.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {form.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[11px] font-medium bg-primary/10 text-primary px-2.5 py-0.5 rounded-full"
+                    >
+                      {tag}
+                    </span>
+                  ))}
                 </div>
-                <span className="text-sm text-text">Featured event</span>
-              </label>
+              )}
+            </FormField>
 
-              <div className="flex gap-3 pt-3 border-t border-border">
-                <Button type="submit" size="md" disabled={saving} className="flex-1">
-                  {saving ? "Saving…" : editing ? "Save Changes" : "Create Event"}
-                </Button>
-                <Button type="button" variant="cream" size="md" onClick={() => setShowModal(false)}>
-                  Cancel
-                </Button>
+            {/* Featured toggle */}
+            <label className="flex items-center gap-3 cursor-pointer select-none">
+              <div
+                onClick={() => setForm({ ...form, is_featured: !form.is_featured })}
+                className={cn(
+                  "relative w-10 h-6 rounded-full transition-colors",
+                  form.is_featured ? "bg-primary" : "bg-muted/30"
+                )}
+              >
+                <span
+                  className={cn(
+                    "absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform",
+                    form.is_featured ? "left-5" : "left-1"
+                  )}
+                />
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+              <span className="text-sm text-text">Featured event</span>
+            </label>
+          </form>
+
+          <SheetFooter>
+            <SheetClose asChild>
+              <Button type="button" variant="cream" size="md">Cancel</Button>
+            </SheetClose>
+            <Button
+              type="submit"
+              form="event-form"
+              size="md"
+              disabled={saving}
+            >
+              {saving ? "Saving…" : editing ? "Save Changes" : "Create Event"}
+            </Button>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       {/* ── Delete Confirm Modal ── */}
       {showDeleteModal && deleteTarget && (
@@ -810,19 +817,16 @@ function CSVImportModal({
   return (
     <div className="fixed inset-0 bg-black/50 z-40 flex items-start justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl border border-border shadow-2xl w-full max-w-2xl my-8">
-        {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border">
           <div>
             <h2 className="font-display text-xl text-text">Import Events from CSV</h2>
             <div className="flex items-center gap-2 mt-2">
               {[1, 2, 3].map((s) => (
                 <div key={s} className="flex items-center gap-1.5">
-                  <div
-                    className={cn(
-                      "w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold",
-                      step >= s ? "bg-primary text-white" : "bg-cream border border-border text-muted"
-                    )}
-                  >
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold",
+                    step >= s ? "bg-primary text-white" : "bg-cream border border-border text-muted"
+                  )}>
                     {s}
                   </div>
                   {s < 3 && <div className={cn("w-8 h-0.5", step > s ? "bg-primary" : "bg-border")} />}
@@ -833,19 +837,14 @@ function CSVImportModal({
               </span>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-muted hover:text-text hover:bg-cream rounded-lg transition-colors"
-          >
+          <button onClick={onClose} className="p-1.5 text-muted hover:text-text hover:bg-cream rounded-lg transition-colors">
             <X size={18} />
           </button>
         </div>
 
         <div className="p-6">
-          {/* Step 1 — Upload */}
           {step === 1 && (
             <div className="space-y-4">
-              {/* Wix info */}
               <div className="bg-cream rounded-xl border border-border overflow-hidden">
                 <button
                   onClick={() => setWixInfoOpen(!wixInfoOpen)}
@@ -863,7 +862,6 @@ function CSVImportModal({
                 )}
               </div>
 
-              {/* Drop zone */}
               <div
                 className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
                 onDragOver={(e) => e.preventDefault()}
@@ -875,9 +873,7 @@ function CSVImportModal({
                 onClick={() => fileRef.current?.click()}
               >
                 <Upload size={28} className="text-muted mx-auto mb-3" />
-                <p className="font-medium text-text text-sm mb-1">
-                  Drop your CSV file here, or click to browse
-                </p>
+                <p className="font-medium text-text text-sm mb-1">Drop your CSV file here, or click to browse</p>
                 <p className="text-xs text-muted">Only .csv files are supported</p>
                 <input
                   ref={fileRef}
@@ -888,7 +884,6 @@ function CSVImportModal({
                 />
               </div>
 
-              {/* Guidance */}
               <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-1.5 text-xs text-muted">
                 <p className="font-semibold text-text mb-2 text-sm">Format guidance</p>
                 <p>• <strong>event_date</strong> — use ISO format: <code className="bg-white px-1 py-0.5 rounded text-[11px]">2025-09-27T19:00:00</code></p>
@@ -905,19 +900,16 @@ function CSVImportModal({
             </div>
           )}
 
-          {/* Step 2 — Preview */}
           {step === 2 && (
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-text">
-                  <span className="font-semibold">{fileName}</span>
-                  {" — "}
-                  <span className="text-emerald-600 font-semibold">{validCount} rows ready</span>
-                  {invalidCount > 0 && (
-                    <span className="text-red-500 font-semibold">, {invalidCount} with errors (will be skipped)</span>
-                  )}
-                </p>
-              </div>
+              <p className="text-sm text-text">
+                <span className="font-semibold">{fileName}</span>
+                {" — "}
+                <span className="text-emerald-600 font-semibold">{validCount} rows ready</span>
+                {invalidCount > 0 && (
+                  <span className="text-red-500 font-semibold">, {invalidCount} with errors (will be skipped)</span>
+                )}
+              </p>
 
               <div className="overflow-x-auto rounded-xl border border-border">
                 <table className="w-full text-xs min-w-140">
@@ -931,13 +923,7 @@ function CSVImportModal({
                   </thead>
                   <tbody>
                     {rows.slice(0, 5).map((row, i) => (
-                      <tr
-                        key={i}
-                        className={cn(
-                          "border-b border-border last:border-0",
-                          !row._valid && "bg-red-50"
-                        )}
-                      >
+                      <tr key={i} className={cn("border-b border-border last:border-0", !row._valid && "bg-red-50")}>
                         <td className="px-3 py-2.5">
                           {row._valid ? (
                             <span className="text-emerald-600 font-semibold">✓</span>
@@ -962,23 +948,14 @@ function CSVImportModal({
               </div>
 
               <div className="flex gap-3 pt-2">
-                <Button
-                  type="button"
-                  size="md"
-                  disabled={validCount === 0}
-                  onClick={handleImport}
-                  className="flex-1"
-                >
+                <Button type="button" size="md" disabled={validCount === 0} onClick={handleImport} className="flex-1">
                   Import {validCount} Event{validCount !== 1 ? "s" : ""}
                 </Button>
-                <Button type="button" variant="cream" size="md" onClick={() => setStep(1)}>
-                  Back
-                </Button>
+                <Button type="button" variant="cream" size="md" onClick={() => setStep(1)}>Back</Button>
               </div>
             </div>
           )}
 
-          {/* Step 3 — Progress / Complete */}
           {step === 3 && (
             <div className="text-center py-6 space-y-6">
               {importing ? (
@@ -1001,15 +978,10 @@ function CSVImportModal({
                   <div className="bg-cream rounded-xl border border-border p-4 text-sm space-y-1">
                     <p><span className="font-semibold text-emerald-600">{summary.imported}</span> events imported</p>
                     {summary.skipped > 0 && (
-                      <p><span className="font-semibold text-red-500">{summary.skipped}</span> events skipped (errors or invalid)</p>
+                      <p><span className="font-semibold text-red-500">{summary.skipped}</span> events skipped</p>
                     )}
                   </div>
-                  <Button
-                    onClick={() => { onComplete(summary.imported); onClose() }}
-                    size="md"
-                  >
-                    Done
-                  </Button>
+                  <Button onClick={() => { onComplete(summary.imported); onClose() }} size="md">Done</Button>
                 </>
               )}
             </div>
