@@ -1,40 +1,41 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { Navbar } from "@/components/layout/Navbar"
-import { Footer } from "@/components/layout/Footer"
-import { GuideCard } from "@/components/guides/GuideCard"
-import { getPublishedGuides, getGuidesByYear } from "@/lib/guides"
-import { BookOpen } from "lucide-react"
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { GuideCard } from "@/components/guides/GuideCard";
+import { getPublishedGuides, getGuidesByYear } from "@/lib/guides";
+import { BookOpen } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Unit Survival Guides | ASSOC",
-  description: "Student-written survival guides for every actuarial unit at Macquarie University. Real advice from students who've been there.",
-}
+  description:
+    "Student-written survival guides for every actuarial unit at Macquarie University. Real advice from students who've been there.",
+};
 
 const YEAR_FILTERS = [
-  { label: "All",    value: null },
+  { label: "All", value: null },
   { label: "Year 1", value: 1 },
   { label: "Year 2", value: 2 },
   { label: "Year 3", value: 3 },
   { label: "Year 4", value: 4 },
-]
+];
 
-type Props = { searchParams: Promise<{ year?: string }> }
+type Props = { searchParams: Promise<{ year?: string }> };
 
 export default async function GuidesPage({ searchParams }: Props) {
-  const { year: yearParam } = await searchParams
-  const yearLevel = yearParam ? parseInt(yearParam) : null
+  const { year: yearParam } = await searchParams;
+  const yearLevel = yearParam ? parseInt(yearParam) : null;
 
   const guides = yearLevel
     ? await getGuidesByYear(yearLevel)
-    : await getPublishedGuides()
+    : await getPublishedGuides();
 
   return (
     <>
       <Navbar />
       <main>
         {/* Hero */}
-        <section className="bg-[var(--color-primary)] py-20">
+        <section className="bg-primary py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/60 mb-4">
               Student Resources
@@ -49,44 +50,45 @@ export default async function GuidesPage({ searchParams }: Props) {
         </section>
 
         {/* Filter bar */}
-        <div className="bg-white border-b border-[var(--color-border)] sticky top-16 z-20">
+        <div className="bg-white border-b border-border sticky top-16 z-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center gap-2 py-3 overflow-x-auto scrollbar-none">
               {YEAR_FILTERS.map(({ label, value }) => {
-                const active = yearLevel === value
-                const href = value ? `/guides?year=${value}` : "/guides"
+                const active = yearLevel === value;
+                const href = value ? `/guides?year=${value}` : "/guides";
                 return (
                   <Link
                     key={label}
                     href={href}
                     className={
                       active
-                        ? "shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold bg-[var(--color-primary)] text-white"
-                        : "shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-cream-dark)] transition-colors"
+                        ? "shrink-0 px-4 py-1.5 rounded-full text-sm font-semibold bg-primary text-white"
+                        : "shrink-0 px-4 py-1.5 rounded-full text-sm font-medium text-muted hover:text-text hover:bg-cream-dark transition-colors"
                     }
                   >
                     {label}
                   </Link>
-                )
+                );
               })}
             </div>
           </div>
         </div>
 
         {/* Guides grid */}
-        <section className="py-14 bg-[var(--color-cream)]">
+        <section className="py-14 bg-cream">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {guides.length === 0 ? (
               <div className="text-center py-20">
-                <BookOpen size={40} className="text-[var(--color-muted)] mx-auto mb-4" />
-                <p className="font-display text-2xl text-[var(--color-text)] mb-2">
-                  No guides published yet{yearLevel ? ` for Year ${yearLevel}` : ""}
+                <BookOpen size={40} className="text-muted mx-auto mb-4" />
+                <p className="font-display text-2xl text-text mb-2">
+                  No guides published yet
+                  {yearLevel ? ` for Year ${yearLevel}` : ""}
                 </p>
-                <p className="text-[var(--color-muted)]">Check back soon!</p>
+                <p className="text-muted">Check back soon!</p>
                 {yearLevel && (
                   <Link
                     href="/guides"
-                    className="inline-block mt-6 text-sm font-semibold text-[var(--color-primary)] hover:underline"
+                    className="inline-block mt-6 text-sm font-semibold text-primary hover:underline"
                   >
                     View all guides →
                   </Link>
@@ -104,5 +106,5 @@ export default async function GuidesPage({ searchParams }: Props) {
       </main>
       <Footer />
     </>
-  )
+  );
 }

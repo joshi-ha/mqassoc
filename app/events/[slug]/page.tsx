@@ -1,7 +1,7 @@
-import type { Metadata } from "next"
-import Image from "next/image"
-import Link from "next/link"
-import { notFound } from "next/navigation"
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   MapPin,
   Calendar,
@@ -11,57 +11,67 @@ import {
   Tag,
   ArrowLeft,
   Navigation,
-} from "lucide-react"
-import { Navbar } from "@/components/layout/Navbar"
-import { Footer } from "@/components/layout/Footer"
-import { EventCard } from "@/components/events/EventCard"
-import { getEventBySlug, getAllEventSlugs, getUpcomingEvents } from "@/lib/events"
-import { formatEventDate, isEventPast } from "@/lib/utils"
-import { cn } from "@/lib/utils"
+} from "lucide-react";
+import { Navbar } from "@/components/layout/Navbar";
+import { Footer } from "@/components/layout/Footer";
+import { EventCard } from "@/components/events/EventCard";
+import {
+  getEventBySlug,
+  getAllEventSlugs,
+  getUpcomingEvents,
+} from "@/lib/events";
+import { formatEventDate, isEventPast } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-export const revalidate = 60
+export const revalidate = 60;
 
 interface PageProps {
-  params: Promise<{ slug: string }>
+  params: Promise<{ slug: string }>;
 }
 
 export async function generateStaticParams() {
-  const slugs = await getAllEventSlugs()
-  return slugs.map((slug) => ({ slug }))
+  const slugs = await getAllEventSlugs();
+  return slugs.map((slug) => ({ slug }));
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = await params
-  const event = await getEventBySlug(slug)
-  if (!event) return { title: "Event Not Found" }
+export async function generateMetadata({
+  params,
+}: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const event = await getEventBySlug(slug);
+  if (!event) return { title: "Event Not Found" };
   return {
     title: event.title,
     description: event.description ?? `${event.title} — ASSOC Event`,
-  }
+  };
 }
 
 export default async function EventDetailPage({ params }: PageProps) {
-  const { slug } = await params
+  const { slug } = await params;
   const [event, moreEvents] = await Promise.all([
     getEventBySlug(slug),
     getUpcomingEvents(4),
-  ])
+  ]);
 
-  if (!event) notFound()
+  if (!event) notFound();
 
-  const past = isEventPast(event.event_date)
-  const relatedEvents = moreEvents.filter((e) => e.slug !== slug).slice(0, 3)
+  const past = isEventPast(event.event_date);
+  const relatedEvents = moreEvents.filter((e) => e.slug !== slug).slice(0, 3);
 
   const googleMapsUrl = event.address
     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.address)}`
     : event.location
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
-    : null
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(event.location)}`
+      : null;
 
-  const descriptionParagraphs = (event.long_description ?? event.description ?? "")
+  const descriptionParagraphs = (
+    event.long_description ??
+    event.description ??
+    ""
+  )
     .split(/\n\n+/)
     .map((p) => p.trim())
-    .filter(Boolean)
+    .filter(Boolean);
 
   return (
     <>
@@ -82,7 +92,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
         {/* Hero image */}
         {event.image_url ? (
-          <div className="relative w-full h-64 sm:h-80 lg:h-[420px] bg-primary/10">
+          <div className="relative w-full h-64 sm:h-80 lg:h-105 bg-primary/10">
             <Image
               src={event.image_url}
               alt={event.title}
@@ -91,13 +101,15 @@ export default async function EventDetailPage({ params }: PageProps) {
               className="object-cover"
               priority
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
           </div>
         ) : (
           <div className="relative w-full h-48 sm:h-64 bg-primary flex items-center justify-center overflow-hidden">
-            <div className="absolute inset-0 opacity-10"
+            <div
+              className="absolute inset-0 opacity-10"
               style={{
-                backgroundImage: "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 50%, white 1px, transparent 1px)",
+                backgroundImage:
+                  "radial-gradient(circle at 20% 50%, white 1px, transparent 1px), radial-gradient(circle at 80% 50%, white 1px, transparent 1px)",
                 backgroundSize: "40px 40px",
               }}
             />
@@ -149,7 +161,9 @@ export default async function EventDetailPage({ params }: PageProps) {
                     ))}
                   </div>
                 ) : (
-                  <p className="text-muted italic text-sm">No description provided.</p>
+                  <p className="text-muted italic text-sm">
+                    No description provided.
+                  </p>
                 )}
               </div>
 
@@ -188,10 +202,14 @@ export default async function EventDetailPage({ params }: PageProps) {
                           Location
                         </p>
                         {event.location && (
-                          <p className="text-sm text-text font-medium">{event.location}</p>
+                          <p className="text-sm text-text font-medium">
+                            {event.location}
+                          </p>
                         )}
                         {event.address && (
-                          <p className="text-xs text-muted mt-0.5">{event.address}</p>
+                          <p className="text-xs text-muted mt-0.5">
+                            {event.address}
+                          </p>
                         )}
                         {googleMapsUrl && (
                           <a
@@ -217,7 +235,9 @@ export default async function EventDetailPage({ params }: PageProps) {
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-0.5">
                         Price
                       </p>
-                      <p className="text-sm text-text font-medium">{event.price ?? "Free"}</p>
+                      <p className="text-sm text-text font-medium">
+                        {event.price ?? "Free"}
+                      </p>
                     </div>
                   </div>
 
@@ -231,7 +251,9 @@ export default async function EventDetailPage({ params }: PageProps) {
                         <p className="text-xs font-semibold uppercase tracking-wider text-muted mb-0.5">
                           Capacity
                         </p>
-                        <p className="text-sm text-text font-medium">{event.capacity} spots</p>
+                        <p className="text-sm text-text font-medium">
+                          {event.capacity} spots
+                        </p>
                       </div>
                     </div>
                   )}
@@ -246,7 +268,7 @@ export default async function EventDetailPage({ params }: PageProps) {
                           "flex items-center justify-center gap-2 w-full rounded-full py-3 text-sm font-semibold transition-all",
                           past
                             ? "bg-muted/20 text-muted cursor-not-allowed"
-                            : "bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md"
+                            : "bg-primary text-white hover:bg-primary-dark shadow-sm hover:shadow-md",
                         )}
                         aria-disabled={past}
                         onClick={past ? (e) => e.preventDefault() : undefined}
@@ -293,5 +315,5 @@ export default async function EventDetailPage({ params }: PageProps) {
       </main>
       <Footer />
     </>
-  )
+  );
 }

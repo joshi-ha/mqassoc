@@ -53,13 +53,11 @@ export function GuidesGrid({ guides }: GuidesGridProps) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="text-center py-20 bg-white rounded-2xl border border-[var(--color-border)]">
-          <p className="font-display text-2xl text-[var(--color-text)] mb-2">
+        <div className="text-center py-20 bg-white rounded-2xl border border-border">
+          <p className="font-display text-2xl text-text mb-2">
             No guides found
           </p>
-          <p className="text-sm text-[var(--color-muted)]">
-            Try adjusting your filters.
-          </p>
+          <p className="text-sm text-muted">Try adjusting your filters.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -85,7 +83,7 @@ function FilterGroup<T extends string | number | null>({
 }) {
   return (
     <div className="flex items-center gap-2 flex-wrap">
-      <span className="text-xs font-semibold text-[var(--color-muted)] uppercase tracking-wider mr-1">
+      <span className="text-xs font-semibold text-muted uppercase tracking-wider mr-1">
         {label}:
       </span>
       {options.map((opt) => (
@@ -95,8 +93,8 @@ function FilterGroup<T extends string | number | null>({
           className={cn(
             "px-3 py-1.5 rounded-full text-xs font-medium transition-all",
             value === opt.value
-              ? "bg-[var(--color-primary)] text-white"
-              : "bg-white border border-[var(--color-border)] text-[var(--color-muted)] hover:border-[var(--color-primary)]/40"
+              ? "bg-primary text-white"
+              : "bg-white border border-border text-muted hover:border-primary/40",
           )}
         >
           {opt.label}

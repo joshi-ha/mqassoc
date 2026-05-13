@@ -4,7 +4,8 @@ import { Footer } from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
   title: "Welcome to Country",
-  description: "ASSOC acknowledges the Traditional Custodians of the land on which Macquarie University stands.",
+  description:
+    "ASSOC acknowledges the Traditional Custodians of the land on which Macquarie University stands.",
 };
 
 export default function WelcomeToCountryPage() {
@@ -13,7 +14,7 @@ export default function WelcomeToCountryPage() {
       <Navbar />
       <main className="min-h-screen bg-[#fef8f0]">
         {/* Decorative top bar */}
-        <div className="h-1.5 bg-gradient-to-r from-[#b85c38] via-[#c4843a] to-[#8b5e3c]" />
+        <div className="h-1.5 bg-linear-to-r from-[#b85c38] via-[#c4843a] to-[#8b5e3c]" />
 
         <section className="py-28">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
